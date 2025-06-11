@@ -91,7 +91,7 @@ class WATIWhatsAppAPI:
 
             if response.status_code == 200:
                 logger.info("Request successful")
-                print(f"   \U0001f4cb API Response: {response_data}")
+                # print(f"   \U0001f4cb API Response: {response_data}")
                 return {'success': True, 'data': response_data, 'status_code': 200}
             else:
                 error_msg = f"API Error {response.status_code}: {response_data}"
@@ -144,7 +144,7 @@ def load_wati_config_info():
 
 if __name__ == "__main__":
     load_wati_config_info()
-    default_phone = os.getenv('DEFAULT_PHONE_NUMBER', '+918128557443')
+    default_phone = os.getenv('DEFAULT_PHONE_NUMBER', '+919016968555')
 
     try:
         wati_client = WATIWhatsAppAPI()
@@ -164,8 +164,12 @@ if __name__ == "__main__":
                 }
             ]
         )
-        print(template_with_header)
-        time.sleep(20)  # Pause for 2 seconds
+        if template_with_header.get("success"):
+            print(
+                f"✅ Template Sent: {template_with_header['data'].get('template_name')} → {template_with_header['data'].get('phone_number')}")
+        else:
+            print(f"❌ Template Failed: {template_with_header.get('error')}")
+        time.sleep(30)  # Pause for 2 seconds
 
         # ✅ Option 2: Send template message without image header
         print("\n📋 Sending approved template message without header...")
@@ -178,8 +182,12 @@ if __name__ == "__main__":
             ],
             broadcast_name="wati_script_test"
         )
-        print(otp_template_result)
-        time.sleep(20)  # Pause for 2 seconds
+        if otp_template_result.get("success"):
+            print(
+                f"✅ OTP Template Sent: {otp_template_result['data'].get('template_name')} with OTP {otp} → {otp_template_result['data'].get('phone_number')}")
+        else:
+            print(f"❌ OTP Template Failed: {otp_template_result.get('error')}")
+        time.sleep(30)  # Pause for 2 seconds
 
         # ✅ Option 3: Send direct session message (non-template)
         print("\n✉️ Sending session message (non-template)...")
@@ -187,7 +195,11 @@ if __name__ == "__main__":
             phone_number=default_phone,
             message_text="Hello! This is a direct message using the WATI session API."
         )
-        print(session_result)
+        if session_result.get("success"):
+            msg_data = session_result.get("data", {}).get("message", {})
+            print(f"✅ Sent | ID: {msg_data.get('whatsappMessageId')} | Text: {msg_data.get('text')}")
+        else:
+            print(f"❌ Failed | Error: {session_result.get('error')}")
 
     except ValueError as e:
         print(f"❌ Configuration Error: {e}")
